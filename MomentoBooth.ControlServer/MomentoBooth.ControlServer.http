@@ -1,0 +1,6 @@
+@MomentoBooth.ControlServer_HostAddress = http://localhost:5082
+
+GET {{MomentoBooth.ControlServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
