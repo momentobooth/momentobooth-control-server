@@ -11,12 +11,12 @@ namespace MomentoBooth.ControlServer.Database.Migrations
             Execute.Sql("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";");
 
             Create.Table("organizations")
-                .WithColumn("id").AsCustom("uuid").PrimaryKey().NotNullable().WithDefault(SystemMethods.NewGuid)
+                .WithColumn("id").AsCustom("uuid").PrimaryKey("organizations_pk").NotNullable().WithDefault(SystemMethods.NewGuid)
                 .WithColumn("name").AsString(256)
                 .WithColumn("created_at").AsCustom("timestamptz").NotNullable().WithDefault(SystemMethods.CurrentDateTimeOffset);
 
             Create.Table("users")
-                .WithColumn("id").AsCustom("uuid").PrimaryKey().NotNullable().WithDefault(SystemMethods.NewGuid)
+                .WithColumn("id").AsCustom("uuid").PrimaryKey("users_pk").NotNullable().WithDefault(SystemMethods.NewGuid)
                 .WithColumn("name").AsString(256).NotNullable()
                 .WithColumn("email").AsCustom("citext").NotNullable().Indexed("user_emails_index")
                 .WithColumn("password_hash").AsBinary(256).NotNullable()
@@ -28,8 +28,10 @@ namespace MomentoBooth.ControlServer.Database.Migrations
                 .WithColumn("user_id").AsCustom("uuid").NotNullable().ForeignKey("users", "id").OnDeleteOrUpdate(System.Data.Rule.Cascade)
                 .WithColumn("created_at").AsCustom("timestamptz").NotNullable().WithDefault(SystemMethods.CurrentDateTimeOffset);
 
+            Create.PrimaryKey("organizations_users_pk").OnTable("organizations_users").Columns(["organization_id", "user_id"]);
+
             Create.Table("photobooth_instances")
-                .WithColumn("id").AsCustom("uuid").PrimaryKey().NotNullable().WithDefault(SystemMethods.NewGuid)
+                .WithColumn("id").AsCustom("uuid").PrimaryKey("photobooth_instances_pk").NotNullable().WithDefault(SystemMethods.NewGuid)
                 .WithColumn("friendly_name").AsString(256).NotNullable()
                 .WithColumn("system_name").AsString(256).Nullable()
                 .WithColumn("connect_key").AsCustom("uuid").NotNullable().WithDefault(SystemMethods.NewGuid)
@@ -44,6 +46,9 @@ namespace MomentoBooth.ControlServer.Database.Migrations
             Delete.UniqueConstraint("organizations_users_records_unique");
 
             Delete.Table("photobooth_instances");
+
+            Delete.PrimaryKey("organizations_users_pk");
+
             Delete.Table("organizations_users");
             Delete.Table("users");
             Delete.Table("organizations");
